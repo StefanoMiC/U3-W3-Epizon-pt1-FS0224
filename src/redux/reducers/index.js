@@ -16,6 +16,9 @@ const initialState = {
   },
   bookSelected: {
     content: null
+  },
+  user: {
+    content: ""
   }
 };
 
@@ -44,7 +47,53 @@ const mainReducer = (state = initialState, action) => {
         ...state,
         cart: {
           ...state.cart,
-          content: state.cart.content.concat(action.payload)
+          // sintassi valida:
+          // content: state.cart.content.concat(action.payload)
+
+          // sintassi da abolire(metodi che mutano gli array di partenza):
+          // content: state.cart.content.push(action.payload) // NO!!!!
+          // il push muta l'array di partenza e oltrettuto ci ritorna il numero della nuova length, di cui non ce ne facciamo niente
+
+          content: [...state.cart.content, action.payload]
+        }
+      };
+
+    case "REMOVE_FROM_CART":
+      return {
+        ...state,
+        cart: {
+          ...state.cart,
+
+          // prende tutti gli elementi prima di quello cliccato con il primo slice,
+          // poi col secondo saltiamo l'elemento stesso e prendiamo tutti i sucessivi
+          // due metodi validi per rimuovere un indice in modo non mutevole:
+
+          // content: state.cart.content.slice(0, action.payload).concat(state.cart.content.slice(action.payload + 1))
+          // content: [...state.cart.content.slice(0, action.payload), ...state.cart.content.slice(action.payload + 1)]
+
+          content: state.cart.content.filter((_, i) => i !== action.payload)
+
+          // da NON FARE assolutamente questo:
+          // sbagliatissimo fare uno splice perché muteremmo l'array originario e ritorneremmo solo un elemento, quello rimosso (quindi object)
+          // content: state.cart.content.splice(action.payload, 1)
+        }
+      };
+
+    case "SELECT_BOOK":
+      return {
+        ...state,
+        bookSelected: {
+          ...state.bookSelected,
+          content: action.payload
+        }
+      };
+
+    case "SET_USER":
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          content: action.payload
         }
       };
 
